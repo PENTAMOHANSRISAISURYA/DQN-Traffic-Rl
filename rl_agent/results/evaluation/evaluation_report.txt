@@ -1,0 +1,49 @@
+=================================================================
+  WEATHER-AWARE DQN TRAFFIC SIGNAL CONTROL
+  Agent Evaluation Report
+=================================================================
+  Evaluation episodes per condition : 100
+  Weather conditions tested         : Clear, Rain, Fog
+  Baseline policy                   : Fixed 30s green baseline
+=================================================================
+
+-- Per-Weather Results --------------------------------------
+Condition  Policy         Reward      Wait(s)   Throughput    Queue
+-----------------------------------------------------------------
+Clear      DQN             27.00      19856.0       5573.4    103.1
+           Fixed           13.29      40314.3       4776.5    146.5
+           Improvement     +103.1%        50.7% reduction
+
+Rain       DQN             -0.70      70752.9       4762.0    144.3
+           Fixed          -11.08      80420.1       3192.7    172.9
+           Improvement      +93.7%        12.0% reduction
+
+Fog        DQN            -10.12      69453.4       5110.0    153.6
+           Fixed          -25.22     104898.2       2596.3    180.4
+           Improvement      +59.9%        33.8% reduction
+
+-- Weather Adaptation (DQN Mean Green Time) -----------------
+  Clear    (factor=1.00) : DQN = 35.3s ± 23.0s  |  Fixed = 30.0s ± 0.0s
+  Rain     (factor=0.70) : DQN = 43.8s ± 24.6s  |  Fixed = 30.0s ± 0.0s
+  Fog      (factor=0.55) : DQN = 58.3s ± 28.0s  |  Fixed = 30.0s ± 0.0s
+
+  Green time increase Clear->Fog : +23.0s
+  Agent IS weather-adaptive (longer green in worse weather)
+
+-- Empty Lane Efficiency ------------------------------------
+  Clear    : 7432/20000 short greens (<=20s) = 37%
+  Rain     : 5131/20000 short greens (<=20s) = 26%
+  Fog      : 4779/20000 short greens (<=20s) = 24%
+
+-- Overall Summary ------------------------------------------
+  DQN avg reward  : 5.39
+  Fixed avg reward: -7.67
+  Overall improvement : +170.3%
+
+  Conclusion:
+  The DQN agent outperforms fixed-timing signal control across
+  all weather conditions. It assigns longer green phases in rain
+  and fog, and shorter green to low-traffic lanes,
+  demonstrating learned weather-adaptive and queue-responsive
+  behaviour.
+=================================================================
