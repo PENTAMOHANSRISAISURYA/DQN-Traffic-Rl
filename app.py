@@ -149,21 +149,65 @@ def load_counts_json():
 
 @st.cache_resource
 def load_agent():
+    import os
+    import sys
+
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+
+    # ✅ Absolute safe path
+    agent_path = os.path.abspath(
+        os.path.join(ROOT, "rl_agent", "results", "dqn_traffic.pth")
+    )
+
     try:
-        import torch
-        sys.path.insert(0, os.path.join(ROOT, 'rl_agent'))
-        from rl_agent.dqn_agent import DQNAgent
-        from rl_agent.traffic_env import STATE_SIZE, GREEN_TIMES
-        agent_path = os.path.join(ROOT, 'rl_agent', 'results', 'dqn_traffic.pth')
+        # 🔍 DEBUG BLOCK (VERY IMPORTANT — DO NOT REMOVE NOW)
+        st.write("📂 ROOT directory:", ROOT)
+        st.write("📄 Expected model path:", agent_path)
+        st.write("📌 Model exists?:", os.path.exists(agent_path))
+
+        # Step-by-step verification
+        rl_path = os.path.join(ROOT, "rl_agent")
+        if os.path.exists(rl_path):
+            st.write("✅ rl_agent folder found")
+            st.write("📂 rl_agent contents:", os.listdir(rl_path))
+
+            res_path = os.path.join(rl_path, "results")
+            if os.path.exists(res_path):
+                st.write("✅ results folder found")
+                st.write("📂 results contents:", os.listdir(res_path))
+            else:
+                st.error("❌ results folder NOT found")
+        else:
+            st.error("❌ rl_agent folder NOT found")
+
+        # ✅ Load model if exists
         if os.path.exists(agent_path):
-            agent = DQNAgent(state_size=STATE_SIZE, action_size=len(GREEN_TIMES))
+            import torch
+
+            sys.path.insert(0, os.path.join(ROOT, "rl_agent"))
+
+            from rl_agent.dqn_agent import DQNAgent
+            from rl_agent.traffic_env import STATE_SIZE, GREEN_TIMES
+
+            agent = DQNAgent(
+                state_size=STATE_SIZE,
+                action_size=len(GREEN_TIMES)
+            )
+
             agent.load(agent_path)
             agent.epsilon = 0.0
             agent.policy_net.eval()
+
+            st.success("✅ Model loaded successfully!")
             return agent, GREEN_TIMES
+
+        else:
+            st.error("❌ Model file NOT FOUND at expected path")
+            return None, None
+
     except Exception as e:
+        st.error(f"❌ Error loading model: {str(e)}")
         return None, None
-    return None, None
 
 counts_data = load_counts_json()
 agent, GREEN_TIMES_LOADED = load_agent()
